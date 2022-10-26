@@ -1,0 +1,294 @@
+openapi: "3.0.3"
+info:
+  title: "GP SERAM"
+  version: "2.0.0"
+  description: "This specification allows a Remote Admin Agent to manage a Secure\
+    \ Element thanks to a Local Admin Agent.
+    \ <br> <br> 2 layers is provided here:<br>\
+    \ - the data model which details messages which are exchanges. Refer to the Schemas\
+    \ section below.<br> - the HTTP REST binding, details in terms of HTTP GET and\
+    \ POST methods. Refer to initialization and seApplicationManagement phase below.<br> <br> The\
+    \ Remote Admin Agent is acting as an HTTP server and the Local Admin Agent as\
+    \ an HTTP Client. During the initialization phase, the local Admin Agent provides a list of\
+    \ supported data format and transport protocol. The server selects the best option <br>"
+tags:
+- name: "seApplicationManagementService"
+  description: "Remote Admin Agent performs the remote management by sending orders\
+    \ to the Local Admin Agent"
+paths:
+  /handshake:
+    post:
+      tags:
+      - "seApplicationManagementService"
+      summary: "method used to negociate data format and the transport protocol"
+      description: "This method shall be used by the HTTP client to tell which data\
+        \ formats and which transport protocols it supports. In response, the HTTP\
+        \ server shall tell which ones it selects.<br> <br> The DataFormat describes\
+        \ which data format is used for message payloads.<br> <br> The TransportProtocol\
+        \ describes the transport protocol binding. It details how setting-up the\
+        \ transport layer (if required), exchanging the messages payload between RAA\
+        \ and LAA, keeping the integrity of the remote management session and resuming\
+        \ communications in case of a data exchange failure<br> <br> The HTTP client shall\
+        \ used the sessionID to allow the HTTP server to track the remote management. The\
+        \ HTTP client shall reused the sessionID in all subsequent HTTP request to the\
+        \ HTTP server"
+      parameters:
+        - name: sessionID
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/sessionId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - "ramHandshakeCommand"
+              properties:
+                ramHandshakeCommand:
+                  $ref: "#/components/schemas/ramHandshakeCommand"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                required:
+                - "remoteManagementHandshakeResponse"
+                properties:
+                  remoteManagementHandshakeResponse:
+                    $ref: "#/components/schemas/ramHandshakeResponse"
+        "404":
+          description: Session id not found
+  /remoteManagement:
+    post:
+      tags:
+      - "seApplicationManagementService"
+      summary: "Method used to respond to a remote management command."
+      description: "This method shall be used by the HTTP client to transmit its response\
+        \ to the HTTP server. <br><br> In response, the HTTP server shall send the next remote\
+        \ management order."
+      parameters:
+        - name: sessionID
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/sessionId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                remoteManagementMsg:
+                  $ref: "#/components/schemas/remoteManagementMsg"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                required:
+                - "remoteManagementOrder"
+                properties:
+                  remoteManagementOrder:
+                    $ref: "#/components/schemas/remoteManagementOrder"
+        "404":
+          description: Session id not found
+components:
+  schemas:
+    apdu:
+      description: "hexadecimal encoded APDU"
+      type: "string"
+      pattern: "([0-9A-F]{2})*"
+    dataFormat:
+      type: "string"
+      enum:
+      - "application/json"
+      - "application/asn1"
+
+    secureElement:
+      type: "object"
+      properties:
+        seType:
+          type: "string"
+          enum:
+            - "eSE"
+            - "uicc"
+            - "euicc"
+        seId:
+          type: "string"
+          example: "89001012012341234012345678901224"
+
+    sessionId:
+      type: "string"
+      format: "uuid"
+      example: "0f96af97-f879-45a2-a011-ee7439df3804"
+
+    transportProtocol:
+      type: "string"
+      enum:
+      - "HTTPS"
+      - "DTLS"
+
+    version:
+      type: "string"
+      enum:
+            - "1.0.1"
+            - "2.0.0"
+    
+    ramCommand:
+      required:
+        - ramCommandType
+      discriminator: 
+        propertyName: "ramCommandType"
+      properties:
+        ramCommandType:
+          type: string
+          enum:
+            - "ramStartCommand"
+            - "seRamCommand"
+            - "notificationCommand"
+            - "redirectCommand"
+            - "ramStopCommand"
+            
+    ramStartCommand:
+      allOf:
+        - $ref: '#/components/schemas/ramCommand' 
+    ramStopCommand:
+      allOf:
+        - $ref: '#/components/schemas/ramCommand' 
+    
+    notificationCommand:
+      allOf:
+      - $ref: '#/components/schemas/ramCommand' 
+      - required:
+          - "deviceAppNotification"
+      properties:
+        deviceAppNotification:
+          description: "notification string to send to the device Application"
+          type: "string"
+          example: "step1/action2/OK"
+
+    redirectCommand:
+      allOf:
+      - $ref: '#/components/schemas/ramCommand' 
+      - required:
+          - "nextURI"
+      properties:
+        nextUri:
+          description: "Uri used to do a remote or local management sub session"
+          type: "string"
+          example: "file:///euicc/sam/script1"
+          
+    seRamCommand:
+      allOf:
+      - $ref: '#/components/schemas/ramCommand' 
+      - required:
+          - "listOfCAPDU"
+        properties:
+          stopOnError:
+            type: "boolean"
+            default: "true"
+          listOfCAPDU:
+            type: "array"
+            items:
+              $ref: "#/components/schemas/apdu"
+            example: 
+              - "00A4040008A00000015100000000"
+      
+    
+    ramResponse:
+      required:
+        - ramResponseType
+      discriminator: 
+        propertyName: "ramResponseType"
+      properties:
+        ramResponseType:
+          type: string
+          enum:
+            - "seRamResponse"
+    
+   
+              
+    seRamResponse:
+      allOf:
+      - $ref: '#/components/schemas/ramResponse' 
+      - required:
+          - "listOfRAPDU"
+        properties:
+          listOfRAPDU:
+            type: "array"
+            items:
+              $ref: "#/components/schemas/apdu"
+            example: 
+              - "9000"
+    
+            
+    remoteManagementOrder:
+      description: "This is the data model for the remote management command."
+      properties:
+        delay:
+          description: "Delay in second the device local agent had to wait before\
+            \ sending data to the platform."
+          type: "integer"
+          default: 1
+        ramCommands:
+          type: array
+          items:
+            $ref: "#/components/schemas/ramCommand"
+
+    remoteManagementMsg:
+      description: "This is the data model for the remote management containing SE ram responses. A polling message shall be empty"
+      type: "object"
+      properties:
+        ramResponses:
+          description: "list of RAM responses"
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ramResponse"
+            
+    ramHandshakeCommand:
+      description: "This is the data model for the handshake command. <br><br> If supportedTransportProtocol\
+        \ is not provided, HTTPS is assumed. If supportedDataFormat is not provided,\
+        \ application/json is assumed. <br>If supportedVersions is not provided, 2.0.0 is assumed"
+      type: "object"
+      required:
+      - "seIdType"
+      - "seID"
+      properties:
+        secureElements:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/secureElement"
+        supportedTransportProtocols:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/transportProtocol"
+        supportedDataFormats:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/dataFormat"
+        supportedVersions:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/version"
+
+    ramHandshakeResponse:
+      description: "This is the data model for the handshare response. All fields are mandatory"
+      type: "object"
+      required:
+      - "chosenSecureElement"
+      - "chosenDataProtocol"
+      - "chosenTransportProtocol"
+      - "chosenVersion"
+      properties:
+        chosenSecureElement:
+          $ref: "#/components/schemas/secureElement"
+        chosenTransportProtocol:
+          $ref: "#/components/schemas/transportProtocol"
+        chosenDataFormat:
+          $ref: "#/components/schemas/dataFormat"
+        chosenVersion:
+          $ref: "#/components/schemas/version"  
+
+    
