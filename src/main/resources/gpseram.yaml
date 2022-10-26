@@ -11,10 +11,24 @@ info:
     \ Remote Admin Agent is acting as an HTTP server and the Local Admin Agent as\
     \ an HTTP Client. During the initialization phase, the local Admin Agent provides a list of\
     \ supported data format and transport protocol. The server selects the best option <br>"
+  license:
+    name: "MIT"
+    url: "https://opensource.org/licenses/MIT"
 tags:
 - name: "seApplicationManagementService"
   description: "Remote Admin Agent performs the remote management by sending orders\
     \ to the Local Admin Agent"
+servers:
+      - url: '{protocol}://{domain}/gp/seram'
+        variables:
+          domain:
+            default: localhost
+            description: server domain
+          protocol:
+            enum:
+              - http
+              - https
+            default: https
 paths:
   /handshake:
     post:
@@ -29,37 +43,32 @@ paths:
         \ transport layer (if required), exchanging the messages payload between RAA\
         \ and LAA, keeping the integrity of the remote management session and resuming\
         \ communications in case of a data exchange failure<br> <br> The HTTP client shall\
-        \ used the sessionID to allow the HTTP server to track the remote management. The\
-        \ HTTP client shall reused the sessionID in all subsequent HTTP request to the\
+        \ used the sessionId to allow the HTTP server to track the remote management. The\
+        \ HTTP client shall reused the sessionId in all subsequent HTTP request to the\
         \ HTTP server"
       parameters:
-        - name: sessionID
+        - name: sessionId
           in: query
           required: true
           schema:
             $ref: "#/components/schemas/sessionId"
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              required:
-              - "ramHandshakeCommand"
-              properties:
-                ramHandshakeCommand:
-                  $ref: "#/components/schemas/ramHandshakeCommand"
+              $ref: "#/components/schemas/ramHandshakeCommand"
       responses:
         "200":
           description: "OK"
           content:
             application/json:
-              schema:
-                required:
-                - "remoteManagementHandshakeResponse"
-                properties:
-                  remoteManagementHandshakeResponse:
-                    $ref: "#/components/schemas/ramHandshakeResponse"
+              schema:                
+                $ref: "#/components/schemas/ramHandshakeResponse"
         "404":
           description: Session id not found
+        "500":
+          description: Unknown server error
   /remoteManagement:
     post:
       tags:
@@ -69,31 +78,28 @@ paths:
         \ to the HTTP server. <br><br> In response, the HTTP server shall send the next remote\
         \ management order."
       parameters:
-        - name: sessionID
+        - name: sessionId
           in: query
           required: true
           schema:
             $ref: "#/components/schemas/sessionId"
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              properties:
-                remoteManagementMsg:
-                  $ref: "#/components/schemas/remoteManagementMsg"
+              $ref: "#/components/schemas/remoteManagementMsg"
       responses:
         "200":
           description: "OK"
           content:
             application/json:
-              schema:
-                required:
-                - "remoteManagementOrder"
-                properties:
-                  remoteManagementOrder:
-                    $ref: "#/components/schemas/remoteManagementOrder"
+              schema:                
+                $ref: "#/components/schemas/remoteManagementOrder"
         "404":
           description: Session id not found
+        "500":
+          description: Unknown server error
 components:
   schemas:
     apdu:
@@ -108,48 +114,78 @@ components:
 
     secureElement:
       type: "object"
+      required:
+        - seType
+        - seId
       properties:
-        seType:
-          type: "string"
-          enum:
-            - "eSE"
-            - "uicc"
-            - "euicc"
+        seType:                  
+          $ref: "#/components/schemas/seType"
         seId:
           type: "string"
           example: "89001012012341234012345678901224"
+        seExtraInfo:
+          type: "string"
+          example: "SAM"
 
     sessionId:
-      type: "string"
-      format: "uuid"
+      type: "string"      
       example: "0f96af97-f879-45a2-a011-ee7439df3804"
 
     transportProtocol:
       type: "string"
       enum:
       - "HTTPS"
-      - "DTLS"
+      - "DTLS"   
+    
+      
+    seType:
+          type: "string"
+          enum:
+            - "eSE"
+            - "iSE"            
+            - "uicc"
+            - "euicc"
+            - "ieuicc"
 
-    version:
+    deviceRamStatusEnum:
       type: "string"
       enum:
-            - "1.0.1"
-            - "2.0.0"
+      - "PROCESSED"
+      - "POLLING"
+      - "UNAVAILABLE_SE"
+      - "UNKNOWN_FAILURE"
+      - "UNGRANTED_ACCESS"
+
+    deviceRamStatus:
+       required:
+        - deviceRamStatusEnum
+        - executedRamCommands
+       properties:
+        deviceRamStatusEnum:        
+          $ref: "#/components/schemas/deviceRamStatusEnum"
+        executedRamCommands:
+          type: integer
+        errorMsg:        
+          type: string
+
+    version:
+      type: "string"      
+      example: "2.0.0"
     
     ramCommand:
       required:
         - ramCommandType
       discriminator: 
         propertyName: "ramCommandType"
+        mapping:
+            ramStartCommand: '#/components/schemas/ramStartCommand'
+            seRamCommand: '#/components/schemas/seRamCommand'
+            notificationCommand : '#/components/schemas/notificationCommand'
+            ramStopCommand : '#/components/schemas/ramStopCommand'
       properties:
         ramCommandType:
           type: string
-          enum:
-            - "ramStartCommand"
-            - "seRamCommand"
-            - "notificationCommand"
-            - "redirectCommand"
-            - "ramStopCommand"
+                  
             
     ramStartCommand:
       allOf:
@@ -169,26 +205,13 @@ components:
           type: "string"
           example: "step1/action2/OK"
 
-    redirectCommand:
-      allOf:
-      - $ref: '#/components/schemas/ramCommand' 
-      - required:
-          - "nextURI"
-      properties:
-        nextUri:
-          description: "Uri used to do a remote or local management sub session"
-          type: "string"
-          example: "file:///euicc/sam/script1"
-          
+             
     seRamCommand:
       allOf:
       - $ref: '#/components/schemas/ramCommand' 
       - required:
           - "listOfCAPDU"
-        properties:
-          stopOnError:
-            type: "boolean"
-            default: "true"
+        properties:          
           listOfCAPDU:
             type: "array"
             items:
@@ -198,16 +221,15 @@ components:
       
     
     ramResponse:
-      required:
+      required:        
         - ramResponseType
       discriminator: 
         propertyName: "ramResponseType"
+        mapping:
+          seRamResponse: '#/components/schemas/seRamResponse'
       properties:
         ramResponseType:
           type: string
-          enum:
-            - "seRamResponse"
-    
    
               
     seRamResponse:
@@ -239,8 +261,14 @@ components:
 
     remoteManagementMsg:
       description: "This is the data model for the remote management containing SE ram responses. A polling message shall be empty"
-      type: "object"
+      type: "object"      
+      required:
+      - "deviceRamStatus"
       properties:
+        deviceRamStatus:
+          $ref: "#/components/schemas/deviceRamStatus"  
+        chosenSecureElement:
+          $ref: "#/components/schemas/secureElement"        
         ramResponses:
           description: "list of RAM responses"
           type: "array"
@@ -250,11 +278,12 @@ components:
     ramHandshakeCommand:
       description: "This is the data model for the handshake command. <br><br> If supportedTransportProtocol\
         \ is not provided, HTTPS is assumed. If supportedDataFormat is not provided,\
-        \ application/json is assumed. <br>If supportedVersions is not provided, 2.0.0 is assumed"
+        \ application/json is assumed. <br>If supportedVersions is not provided, 2.0.0 is assumed. 
+        secureElements shall be ordered by preference by the client. "
       type: "object"
       required:
       - "seIdType"
-      - "seID"
+      - "seId"
       properties:
         secureElements:
           type: "array"
@@ -274,21 +303,16 @@ components:
             $ref: "#/components/schemas/version"
 
     ramHandshakeResponse:
-      description: "This is the data model for the handshare response. All fields are mandatory"
+      description: "This is the data model for the handshake response."
       type: "object"
-      required:
-      - "chosenSecureElement"
+      required:      
       - "chosenDataProtocol"
       - "chosenTransportProtocol"
       - "chosenVersion"
-      properties:
-        chosenSecureElement:
-          $ref: "#/components/schemas/secureElement"
+      properties:   
         chosenTransportProtocol:
           $ref: "#/components/schemas/transportProtocol"
         chosenDataFormat:
           $ref: "#/components/schemas/dataFormat"
         chosenVersion:
-          $ref: "#/components/schemas/version"  
-
-    
+          $ref: "#/components/schemas/version"      
