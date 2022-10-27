@@ -26,9 +26,9 @@
             <plugin>
                 <groupId>io.swagger.codegen.v3</groupId>
                 <artifactId>swagger-codegen-maven-plugin</artifactId>
-                <version>3.0.32</version>
+                <version>3.0.35</version>
                 <configuration>
-                    <inputSpec>${basedir}/src/main/resources/gpseram.yaml</inputSpec>
+                    <inputSpec>${basedir}/openapi/gpseram.yaml</inputSpec>
                     <language>jaxrs-cxf</language>
                     <modelPackage>com.orange.se.sam.bean</modelPackage>
                     <apiPackage>com.orange.se.sam.service</apiPackage> 
