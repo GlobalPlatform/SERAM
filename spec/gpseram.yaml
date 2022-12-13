@@ -1,0 +1,595 @@
+openapi: 3.0.3
+info:
+  title: GP SERAM
+  version: 2.0.0
+  description: >-
+    This specification allows a Remote Agent to manage a Secure Element thanks
+    to a Local Agent.<br>
+    <br>
+    2 layers is provided here:<br>
+    - the data model which details messages which are exchanges. Refer to the
+    Schemas section below.<br>
+    - the HTTP REST binding, details in terms of HTTP GET and POST methods.
+    Refer to initialization and seApplicationManagement phase below.<br>
+    <br>
+    The Remote Agent is acting as an HTTP server and the Local Agent as an
+    HTTP Client. During the initialization phase, the local Agent provides a
+    list of supported data format and transport protocol. The server selects
+    the best option and  continue with the selected binding.
+
+    This OpenAPI specification is self-documentated. Please refer to the
+    [GitHub of GP SERAM](http://github.com/globalplatform/SERAM) for additional
+    information.
+
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+tags:
+  - name: seApplicationManagementService
+    description: >-
+      Remote Agent performs the remote management by sending orders to the
+      Local Agent
+servers:
+  - url: '{protocol}://{domain}/gp/seram'
+    variables:
+      domain:
+        default: localhost
+        description: server domain
+      protocol:
+        enum:
+          - http
+          - https
+        default: https
+paths:
+
+  /handshake:
+    post:
+      tags:
+        - seApplicationManagementService
+      summary: method used to negociate data format and the transport protocol
+      description: >-
+        This method shall be used by the HTTP client to tell which data
+        formats and which transport protocols it supports. In response, the
+        HTTP server shall tell which ones it selects.<br> <br> The DataFormat
+        describes which data format is used for message payloads.<br> <br> The
+        TransportProtocol describes the transport protocol binding. It details
+        how setting-up the transport layer (if required), exchanging the
+        messages payload between Remote Agent and Local Agent, keeping the
+        integrity of the remote management session and resuming communications
+        in case of a data exchange failure<br>
+        <br>
+        The HTTP client shall used the sessionId to allow the HTTP server to
+        track the remote management. The HTTP client shall reused the
+        sessionId in all subsequent HTTP request to the HTTP server
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/sessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ramHandshakeCommand'
+            examples:
+              handshakeRequest:
+                summary: Handshake Command Message
+                value:
+                  {
+                    "secureElements": [
+                      {
+                        "seType": "eSE",
+                        "seId": "89001012012341234012345678901224",
+                        "seExtraInfo": "SAM"
+                      }
+                    ],
+                    "supportedTransportProtocols": [ "HTTPS" ],
+                    "supportedDataFormats": [ "application/json" ],
+                    "supportedVersion": [ "2.0.0" ]
+                  }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ramHandshakeResponse'
+              examples:
+                handshakeResponse:
+                  summary: Handshake Response Message
+                  value:
+                    {
+                      "chosenTransportProtocol": "HTTPS",
+                      "chosenDataFormat": "application/json",
+                      "chosenVersion": "2.0.0"
+                    }
+        '404':
+          description: sessionId not found
+        '406':
+          description: HTTP Server could not fulfill the client proposal
+        '500':
+          description: Unknown server error
+
+  /remoteManagement:
+    post:
+      tags:
+        - seApplicationManagementService
+      summary: Method used to respond to a remote management command.
+      description: >-
+        During Command Exchange Step, this endpoint is used to poll the HTTP
+        server and to exchange Command and Reponse Messages.<br>
+        The Remote Agent SHALL first sent a Start Command and SHALL uses
+        the Stop Command to terminate Management Session. During the Command
+        Exchange Step, it may send Notification Command or SE RAM Command to
+        the Local Agent.<br>
+        <br>
+        The Remote Management Session is identify by the sessionId
+        parameter.<br>
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/sessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/remoteManagementReport'
+            examples:
+              withoutResponse:
+                summary: Report Message to poll the Remote Agent
+                value:
+                  {
+                    "localAgentStatus": {
+                      "localAgentStatusEnum": "POLLING",
+                      "executeRamCommands": 0
+                    }
+                  }
+              seRamResponse:
+                summary: Report Message with SE RAM responses
+                value:
+                  {
+                    "localAgentStatus": {
+                      "localAgentStatusEnum": "PROCESSED",
+                      "executedSeRamCommands": 2
+                    },
+                    "ramResponses": [
+                      {
+                        "ramResponseType": "seRamResponse",
+                        "listOfRAPDU": [ "9000", "9000" ]
+                      },
+                      {
+                        "ramResponseType": "seRamResponse",
+                        "listOfRAPDU": [ "9000" ]
+                      }
+                    ]
+                  }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/remoteManagementOrder'
+              examples:
+                withoutCommand:
+                  summary: Order Message without any Command (polling)
+                  value:
+                    {
+                      "delay": 500
+                    }
+                startCommand:
+                  summary: Order Message with a Start Command
+                  value:
+                    {
+                      "ramCommands": [
+                        {
+                          "ramCommandType": "startCommand"
+                        }
+                      ]
+                    }
+                seRamCommand:
+                  summary: Order Message with a SE RAM Command
+                  value:
+                    {
+                      "delay": 100,
+                      "chosenSecureElement": {
+                        "seType": "eSE",
+                        "seId": "89001012012341234012345678901224",
+                        "seExtraInfo": "SAM"
+                      },
+                      "ramCommands": [
+                        {
+                          "ramCommandType": "seRamCommand",
+                          "listOfCAPDU": [ "00A40400OA0001020304050607080900A" ]
+                        }
+                      ]
+                    }
+                notificationCommand:
+                  summary: Order Message with a Notification Command
+                  value:
+                    {
+                      "ramCommands": [
+                        {
+                          "ramCommandType": "notificationCommand",
+                          "deviceAppNotification": "step1/action2/OK"
+                        }
+                      ]
+                    }
+                stopCommand:
+                  summary: Order Message with a Stop Command
+                  value:
+                    {
+                      "ramCommands": [
+                        {
+                          "ramCommandType": "stopCommand"
+                        }
+                      ]
+                    }
+                allCommands:
+                  summary: Order Message with a Start, SE RAM, Notification and Stop Command
+                  value:
+                    {
+                      "delay": 0,
+                      "chosenSecureElement": {
+                        "seType": "eSE",
+                        "seId": "89001012012341234012345678901224",
+                        "seExtraInfo": "SAM"
+                      },
+                      "ramCommands": [
+                        {
+                          "ramCommandType": "startCommand"
+                        },
+                        {
+                          "ramCommandType": "seRamCommand",
+                          "listOfCAPDU": [ "00A40400OA0001020304050607080900A" ]
+                        },
+                        {
+                          "ramCommandType": "notificationCommand",
+                          "deviceAppNotification": "step1/action2/OK"
+                        },
+                        {
+                          "ramCommandType": "stopCommand"
+                        }
+                      ]
+                    }
+        '404':
+          description: Session id not found
+        '500':
+          description: Unknown server error
+
+components:
+  schemas:
+
+    ramHandshakeCommand:
+      description: >-
+        The Handshake Command is the Message used by the Local Agent
+        during the Handshake Step.<br>
+        <br>
+        If supportedTransportProtocol is not provided, HTTPS is assumed. If
+        supportedDataFormat is not provided, application/json is assumed.<br>
+        If supportedVersions is not provided, 2.0.0 is assumed. secureElements
+        shall be ordered by preference by the client.
+      type: object
+      required:
+        - 'secureElements'
+      properties:
+        secureElements:
+          description: A list of Secure Element available on Local Agent side.
+          type: array
+          items:
+            $ref: '#/components/schemas/secureElement'
+        supportedTransportProtocols:
+          description: >-
+            A list of Transport Protocol supported by the the Local Agent.
+            If not provided "HTTPS" is assumed.
+          type: array
+          items:
+            $ref: '#/components/schemas/transportProtocol'
+        supportedDataFormats:
+          description: >-
+            A list of Transport Data Format supported by the Local Agent.
+            If not provided, "application/json" if assumed.
+          type: array
+          items:
+            $ref: '#/components/schemas/dataFormat'
+        supportedVersions:
+          description: >-
+            A list of version of GP SERAM supported by the Local Agent.
+            If not provided, "2.0.0" is assumed.
+          type: array
+          items:
+            $ref: '#/components/schemas/version'
+
+    ramHandshakeResponse:
+      description: >-
+        The Handshake Response is the Message used by the Remote Agent
+        during the Handshake Step.<br>
+        <br>
+        Each value of the chosen properties shall correspond of one supported
+        by the Local Agent."
+      required:
+        - 'chosenDataProtocol'
+        - 'chosenTransportProtocol'
+        - 'chosenVersion'
+      properties:
+        chosenTransportProtocol:
+          allOf:
+            - description: >-
+               The Transport Protocol selected by the Remote Agent.
+            - $ref: '#/components/schemas/transportProtocol'
+        chosenDataFormat:
+          allOf:
+            - description: The Data Protocol selected by the Remote Agent.
+            - $ref: '#/components/schemas/dataFormat'
+        chosenVersion:
+          allOf:
+            - description: >-
+                The Version of GP SERAM selected by the Remote Agent
+            - $ref: '#/components/schemas/version'
+
+    remoteManagementOrder:
+      description: >-
+        The Remote Agent may used Order Message to select a Secure Element, to
+        send Commands, or to maintain the connection with the Local Agent.<br>
+        <br>
+        All fields are optional.
+      properties:
+        delay:
+          description: >-
+            Delay in millisecond the Local Agent had to wait before sending
+            data to the platform. Uses '0' to avoid having any delay.
+          type: integer
+          default: 100
+        chosenSecureElement:
+          allOf:
+            - description: >-
+                Set the Secure Element the Local Agent SHALL used to send
+                C-APDU
+            - $ref: '#/components/schemas/secureElement'
+        ramCommands:
+          description: >-
+            List of Commands to be executed by the Local Agent. The list SHALL
+            contain at least one Command Message. If the list contains more
+            than one Command Message, the Local Agent SHALL handles them one
+            by one. 
+          type: array
+          items:
+            $ref: '#/components/schemas/ramCommand'
+
+    remoteManagementReport:
+      description: >-
+        The Local Agent replies to an Order Message with a Report Message that
+        includes the Responses for the Commands, if any, and to ask the Remote
+        Agent for next Commands.<br>
+        <br>
+        In case of HTTP polling and for the first HTTP message, only the
+        localAgentStatus is included.
+      type: object
+      required:
+        - localAgentStatus
+      properties:
+        localAgentStatus:
+          allOf:
+            - description: Status of the Local Agent
+            - $ref: '#/components/schemas/localAgentStatus'
+        ramResponses:
+          description: The list of RAM responses
+          type: array
+          items:
+            $ref: '#/components/schemas/ramResponse'
+
+    ramCommand:
+      description: >-
+        Commands are sent by the Remote Agent and shall be executed by
+        the Local Agent.
+      required:
+        - ramCommandType
+      discriminator:
+        propertyName: ramCommandType
+        mapping:
+            ramStartCommand: '#/components/schemas/ramStartCommand'
+            seRamCommand: '#/components/schemas/seRamCommand'
+            notificationCommand : '#/components/schemas/notificationCommand'
+            ramStopCommand : '#/components/schemas/ramStopCommand'
+      properties:
+        ramCommandType:
+          description: >-
+            The type of Command with authorized values listed in the
+            discrimitator mapping
+          type: string
+
+    ramStartCommand:
+      allOf:
+        - description: >-
+            The RAM Start Command inform the Local Agent of the start of the
+            Remote Management Session by the Remote Agent.
+        - $ref: '#/components/schemas/ramCommand'
+
+    seRamCommand:
+      allOf:
+      - description: >-
+          The SE RAM Command is used to send APDU to the Secure Element.<br>
+          The Local Agent SHALL send each APDU command of the listOfCAPDU to
+          the Secure Element using the SE Access API. The Local Agent SHALL
+          add each APDU response to the associated SE RAM Response. If an APDU
+          Response is not available, the Local Agent SHALL use an empty
+          string as APDU Response.
+      - $ref: '#/components/schemas/ramCommand'
+      - required:
+        - 'listOfCAPDU'
+      properties:
+        listOfCAPDU:
+          description: >-
+            An ordered list of APDU to send to the Secure Element. Each APDU
+            are encoded as hexadecimal string.
+          type: array
+          items:
+            $ref: '#/components/schemas/apdu'
+          example:
+            - '00A4040008A00000015100000000'
+
+    notificationCommand:
+      allOf:
+      - description: >-
+          The Notification Command is used to send processing a notification
+          to the Device Application. The meaning of the notification and how
+          it is handled by the Device Application is implementation dependent.
+      - $ref: '#/components/schemas/ramCommand'
+      - required:
+          - 'deviceAppNotification'
+      properties:
+        deviceAppNotification:
+          description: >-
+            An UTF-8 string to be notified to the Device Application
+          type: string
+          example: 'step1/action2/OK'
+
+    ramStopCommand:
+      allOf:
+        - description: >-
+            A Remote Agent uses this Command to close the Remote Session.<br>
+            The Local Agent SHALL NOT send any new Report Message and SHALL
+            discard any remaining Response, if any.
+            This Command marks the end of the processing by a Management
+            Platform and no further Order Message will be sent.
+        - $ref: '#/components/schemas/ramCommand'
+
+    ramResponse:
+      description: >-
+        Some Command required to send back a response to the Remote Agent.
+      required:
+        - 'ramResponseType'
+      discriminator:
+        propertyName: ramResponseType
+        mapping:
+          seRamResponse: '#/components/schemas/seRamResponse'
+      properties:
+        ramResponseType:
+          description: >-
+            The type of Response with authorized values listed in the
+            discrimitator mapping
+          type: string
+
+    seRamResponse:
+      allOf:
+      - description: >-
+          The SE RAM Response contains the APDU responses of the Secure
+          Element to the corresponding SE RAM Command.<br>
+          For each APDU send to the Secure Element, the Local Agent shall add
+          the associated APDU response to the listOfRAPDU property. If an APDU
+          response is not available (e.g. for a SELECT or on error), it shall
+          be filled with an empty string.
+      - $ref: '#/components/schemas/ramResponse'
+      - required:
+          - 'listOfRAPDU'
+        properties:
+          listOfRAPDU:
+            description: >-
+              An ordered list of APDU response of the Secure Element. Each
+              APDU are encoded as hexadecimal string.
+            type: array
+            items:
+              $ref: '#/components/schemas/apdu'
+            example:
+              - '9000'
+
+    apdu:
+      description: hexadecimal encoded APDU
+      type: string
+      pattern: '([0-9A-F]{2})*'
+
+    dataFormat:
+      description: Encoding format of GP SERAM Messages
+      type: string
+      enum:
+        - application/json
+        - application/cbor
+
+    localAgentStatus:
+      description: >-
+        The Local Agent SHALL sent a status in each request to the HTTP server.
+      required:
+        - localAgentStatusEnum
+        - executedRamCommands
+      properties:
+        localAgentStatusEnum:
+          description: >-
+            Local Agent SHALL send a PROCESSED status whenever at least one
+            RAM command has been executed. On any error processing one of
+            UNAVAILABLE_SE, UNKNOWN_FAILURE, or UNGRANTED_ACCESS SHALL be used.
+            And the POLLING status SHALL be used for the first HTTP request or
+            if the Remote Agent hasn't sent any Command.
+          enum:
+            - PROCESSED
+            - POLLING
+            - UNAVAILABLE_SE
+            - UNKNOWN_FAILURE
+            - UNGRANTED_ACCESS
+        executedSeRamCommands:
+          description: >-
+            Number of SE RAM command executed. Value SHALL be set to zero
+            during polling.<br>
+            The Remote Agent can determine whether an error occurred if the
+            value differs from the number of commands sent.
+          type: integer
+        errorMsg:
+          description: >-
+            Additional information that SHOULD be provided in case of error
+            (i.e. the localAgentStatusEnum is set to UNAVAILABLE_SE,
+            UNKNOWN_FAILURE, or UNGRANDED_ACCESS). This message SHOULD be
+            logged for investigation or for legal purpose.
+          type: string
+
+    secureElement:
+      description: >-
+        A Secure Element. It is composed of the type of Secure Element and the
+        identifier of the Secure Element. Moreover, it may includes an
+        additional field to provide some additional informations related to
+        the Secure Element (E.g. the support the GP SAM)
+      type: object
+      required:
+        - seType
+        - seId
+      properties:
+        seType:
+          description: Type of Secure Element.
+          type: string
+          enum:
+            - eSE
+            - iSE
+            - uicc
+            - euicc
+            - ieuicc
+        seId:
+          description: Identifier of the Secure Element.
+          type: string
+          example: '89001012012341234012345678901224'
+        seExtraInfo:
+          description: A comma separated list of features supported by the SE.
+          type: string
+          example: 'SAM'
+
+    sessionId:
+      description: >-
+        An identifier shared between the Device Application and the Management
+        Platform and associated with a Management Session.
+      type: string
+      example: '0f96af97-f879-45a2-a011-ee7439df3804'
+
+    transportProtocol:
+      description: A transport protocol to exchange GP SERAM Messages.
+      type: string
+      enum:
+        - HTTPS
+        - CoAP
+
+    version:
+      description: A Version of GP SERAM
+      type: string
+      example: '2.0.0'
+

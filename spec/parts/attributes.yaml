@@ -1,0 +1,95 @@
+    apdu:
+      description: hexadecimal encoded APDU
+      type: string
+      pattern: '([0-9A-F]{2})*'
+
+    dataFormat:
+      description: Encoding format of GP SERAM Messages
+      type: string
+      enum:
+        - application/json
+        - application/cbor
+
+    localAgentStatus:
+      description: >-
+        The Local Agent SHALL sent a status in each request to the HTTP server.
+      required:
+        - localAgentStatusEnum
+        - executedRamCommands
+      properties:
+        localAgentStatusEnum:
+          description: >-
+            Local Agent SHALL send a PROCESSED status whenever at least one
+            RAM command has been executed. On any error processing one of
+            UNAVAILABLE_SE, UNKNOWN_FAILURE, or UNGRANTED_ACCESS SHALL be used.
+            And the POLLING status SHALL be used for the first HTTP request or
+            if the Remote Agent hasn't sent any Command.
+          enum:
+            - PROCESSED
+            - POLLING
+            - UNAVAILABLE_SE
+            - UNKNOWN_FAILURE
+            - UNGRANTED_ACCESS
+        executedSeRamCommands:
+          description: >-
+            Number of SE RAM command executed. Value SHALL be set to zero
+            during polling.<br>
+            The Remote Agent can determine whether an error occurred if the
+            value differs from the number of commands sent.
+          type: integer
+        errorMsg:
+          description: >-
+            Additional information that SHOULD be provided in case of error
+            (i.e. the localAgentStatusEnum is set to UNAVAILABLE_SE,
+            UNKNOWN_FAILURE, or UNGRANDED_ACCESS). This message SHOULD be
+            logged for investigation or for legal purpose.
+          type: string
+
+    secureElement:
+      description: >-
+        A Secure Element. It is composed of the type of Secure Element and the
+        identifier of the Secure Element. Moreover, it may includes an
+        additional field to provide some additional informations related to
+        the Secure Element (E.g. the support the GP SAM)
+      type: object
+      required:
+        - seType
+        - seId
+      properties:
+        seType:
+          description: Type of Secure Element.
+          type: string
+          enum:
+            - eSE
+            - iSE
+            - uicc
+            - euicc
+            - ieuicc
+        seId:
+          description: Identifier of the Secure Element.
+          type: string
+          example: '89001012012341234012345678901224'
+        seExtraInfo:
+          description: A comma separated list of features supported by the SE.
+          type: string
+          example: 'SAM'
+
+    sessionId:
+      description: >-
+        An identifier shared between the Device Application and the Management
+        Platform and associated with a Management Session.
+      type: string
+      example: '0f96af97-f879-45a2-a011-ee7439df3804'
+
+    transportProtocol:
+      description: A transport protocol to exchange GP SERAM Messages.
+      type: string
+      enum:
+        - HTTPS
+        - CoAP
+
+    version:
+      description: A Version of GP SERAM
+      type: string
+      example: '2.0.0'
+

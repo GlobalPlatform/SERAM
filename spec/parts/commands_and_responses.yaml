@@ -1,0 +1,115 @@
+    ramCommand:
+      description: >-
+        Commands are sent by the Remote Agent and shall be executed by
+        the Local Agent.
+      required:
+        - ramCommandType
+      discriminator:
+        propertyName: ramCommandType
+        mapping:
+            ramStartCommand: 'attributes.yaml#/ramStartCommand'
+            seRamCommand: 'attributes.yaml#/seRamCommand'
+            notificationCommand : 'attributes.yaml#/notificationCommand'
+            ramStopCommand : 'attributes.yaml#/ramStopCommand'
+      properties:
+        ramCommandType:
+          description: >-
+            The type of Command with authorized values listed in the
+            discrimitator mapping
+          type: string
+
+    ramStartCommand:
+      allOf:
+        - description: >-
+            The RAM Start Command inform the Local Agent of the start of the
+            Remote Management Session by the Remote Agent.
+        - $ref: 'attributes.yaml#/ramCommand'
+
+    seRamCommand:
+      allOf:
+      - description: >-
+          The SE RAM Command is used to send APDU to the Secure Element.<br>
+          The Local Agent SHALL send each APDU command of the listOfCAPDU to
+          the Secure Element using the SE Access API. The Local Agent SHALL
+          add each APDU response to the associated SE RAM Response. If an APDU
+          Response is not available, the Local Agent SHALL use an empty
+          string as APDU Response.
+      - $ref: 'attributes.yaml#/ramCommand'
+      - required:
+        - 'listOfCAPDU'
+      properties:
+        listOfCAPDU:
+          description: >-
+            An ordered list of APDU to send to the Secure Element. Each APDU
+            are encoded as hexadecimal string.
+          type: array
+          items:
+            $ref: 'attributes.yaml#/apdu'
+          example:
+            - '00A4040008A00000015100000000'
+
+    notificationCommand:
+      allOf:
+      - description: >-
+          The Notification Command is used to send processing a notification
+          to the Device Application. The meaning of the notification and how
+          it is handled by the Device Application is implementation dependent.
+      - $ref: 'attributes.yaml#/ramCommand'
+      - required:
+          - 'deviceAppNotification'
+      properties:
+        deviceAppNotification:
+          description: >-
+            An UTF-8 string to be notified to the Device Application
+          type: string
+          example: 'step1/action2/OK'
+
+    ramStopCommand:
+      allOf:
+        - description: >-
+            A Remote Agent uses this Command to close the Remote Session.<br>
+            The Local Agent SHALL NOT send any new Report Message and SHALL
+            discard any remaining Response, if any.
+            This Command marks the end of the processing by a Management
+            Platform and no further Order Message will be sent.
+        - $ref: 'attributes.yaml#/ramCommand'
+
+    ramResponse:
+      description: >-
+        Some Command required to send back a response to the Remote Agent.
+      required:
+        - 'ramResponseType'
+      discriminator:
+        propertyName: ramResponseType
+        mapping:
+          seRamResponse: 'attributes.yaml#/seRamResponse'
+      properties:
+        ramResponseType:
+          description: >-
+            The type of Response with authorized values listed in the
+            discrimitator mapping
+          type: string
+
+    seRamResponse:
+      allOf:
+      - description: >-
+          The SE RAM Response contains the APDU responses of the Secure
+          Element to the corresponding SE RAM Command.<br>
+          For each APDU send to the Secure Element, the Local Agent shall add
+          the associated APDU response to the listOfRAPDU property. If an APDU
+          response is not available (e.g. for a SELECT or on error), it shall
+          be filled with an empty string.
+      - $ref: 'attributes.yaml#/ramResponse'
+      - required:
+          - 'listOfRAPDU'
+        properties:
+          listOfRAPDU:
+            description: >-
+              An ordered list of APDU response of the Secure Element. Each
+              APDU are encoded as hexadecimal string.
+            type: array
+            items:
+              $ref: 'attributes.yaml#/apdu'
+            example:
+              - '9000'
+
