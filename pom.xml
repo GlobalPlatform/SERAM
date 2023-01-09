@@ -4,7 +4,7 @@
     <packaging>jar</packaging>
     <name>gpseram-api</name>
    
-    <description>This api includes some bean classes for GPSERAM</description>
+    <description>This api includes some bean classes for GP SERAM</description>
 
     <groupId>org.globalplatform</groupId>
     <artifactId>gpseram-api</artifactId>
@@ -28,18 +28,15 @@
                 <artifactId>swagger-codegen-maven-plugin</artifactId>
                 <version>3.0.35</version>
                 <configuration>
-                    <inputSpec>${basedir}/openapi/gpseram.yaml</inputSpec>
+                    <inputSpec>${basedir}/spec/gpseram.yaml</inputSpec>
                     <language>jaxrs-cxf</language>
-                    <modelPackage>com.orange.se.sam.bean</modelPackage>
-                    <apiPackage>com.orange.se.sam.service</apiPackage> 
+                    <modelPackage>org.globalplatform.se.ram.bean</modelPackage>
+                    <apiPackage>org.globalplatform.se.ram.service</apiPackage> 
                     <generateApis>false</generateApis>
                     <generateModels>true</generateModels>
                     <generateModelDocumentation>false</generateModelDocumentation>
                     <generateModelTests>false</generateModelTests>
                     <generateSupportingFiles>false</generateSupportingFiles>                           
-                    <!--configOptions>
-                        <sourceFolder>../../../generated/src/main/java</sourceFolder>                                
-                    </configOptions-->
                 </configuration>
                 <executions>
                     <execution>
