@@ -39,4 +39,4 @@ Simply launch the java object generation. The objects will be generated in targe
 mvn clean install
 ```
 
-Another way is to use the [OpenAPI CLI tool](https://openapi-generator.tech/docs/installation)
+Another way is to use the [OpenAPI CLI tool](https://openapi-generator.tech/docs/installation).
