@@ -28,3 +28,15 @@ For **GP SERAM - HTTP REST Binding** please refer to:
 * [HTTP REST Binding - OpenAPI specification](spec/gpseram.yaml) ([Viewer](https://globalplatform.github.io/SERAM/))
 * [HTTP REST Binding - explanation](doc/GPSERAM__HTTP_REST_Binding.md)
 
+Tools
+----------------
+
+There are different ways to generate the object from [HTTP REST Binding - OpenAPI specification](spec/gpseram.yaml).
+This project is compliant with [maven](https://maven.apache.org/). The file [pom](pom.xml) has been designed to generate java objects. 
+It can be modified to generate other language objects as described in [OpenAPI plugin documentation](https://openapi-generator.tech/docs/plugins/)
+Simply launch the java object generation. The objects will be generated in target/generated directory.     
+```batch
+mvn clean install
+```
+
+Another way is to use the [OpenAPI CLI tool](https://openapi-generator.tech/docs/installation)

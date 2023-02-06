@@ -17,26 +17,55 @@
         <tag>HEAD</tag>
     </scm>
   
-    <dependencies>        
-          
-    </dependencies>
-
-    <build>
+   
+    <build>        
         <plugins>
             <plugin>
-                <groupId>io.swagger.codegen.v3</groupId>
-                <artifactId>swagger-codegen-maven-plugin</artifactId>
-                <version>3.0.35</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
                 <configuration>
-                    <inputSpec>${basedir}/spec/gpseram.yaml</inputSpec>
-                    <language>jaxrs-cxf</language>
+                    <showDeprecation>true</showDeprecation>
+                    <source>11</source>
+                    <target>11</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated/openapi/src/gen/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>                        
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>6.2.1</version>
+                <configuration>                    
+                    <sourceFolder>java/main</sourceFolder>                    
+                    <inputSpec>${basedir}/spec/gpseram.yaml</inputSpec>                    
                     <modelPackage>org.globalplatform.se.ram.bean</modelPackage>
-                    <apiPackage>org.globalplatform.se.ram.service</apiPackage> 
+                    <apiPackage>org.globalplatform.se.ram.service</apiPackage>                                
+                    <generatorName>jaxrs-cxf</generatorName> 
                     <generateApis>false</generateApis>
                     <generateModels>true</generateModels>
                     <generateModelDocumentation>false</generateModelDocumentation>
                     <generateModelTests>false</generateModelTests>
-                    <generateSupportingFiles>false</generateSupportingFiles>                           
+                    <generateSupportingFiles>false</generateSupportingFiles>
+                    <output>${project.build.directory}/generated/openapi</output>                           
                 </configuration>
                 <executions>
                     <execution>
@@ -47,6 +76,26 @@
                 </executions>               
             </plugin>            
         </plugins>
-    </build>
-
+    </build>    
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.13.2</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.1.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>1.6.4</version>
+        </dependency>  
+    </dependencies>
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
 </project>
