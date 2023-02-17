@@ -3,6 +3,7 @@ This directory contains
 - ```gpseram.yaml```: the GP SERAM specification
 - ```Makefile```: see below
 - ```parts```: OpenAPI files
+- ```externalValueWorkaround.sh```: a workadound for unsupported externalValue in Swagger UI
 - ```README.md```: this file
 
 The GP SERAM specification can be generated from OpenAPI files using the
