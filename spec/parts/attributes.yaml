@@ -8,7 +8,6 @@
       type: string
       enum:
         - application/json
-        - application/cbor
 
     localAgentStatus:
       description: >-
@@ -86,7 +85,6 @@
       type: string
       enum:
         - HTTPS
-        - CoAP
 
     version:
       description: A Version of GP SERAM
