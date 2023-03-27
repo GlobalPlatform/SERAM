@@ -1,0 +1,16 @@
+{
+  "localAgentStatus": {
+    "localAgentStatusEnum": "PROCESSED",
+    "executedSeRamCommands": 2
+  },
+  "ramResponses": [
+    {
+      "ramResponseType": "seRamResponse",
+      "listOfRAPDU": [ "9000", "9000" ]
+    },
+    {
+      "ramResponseType": "seRamResponse",
+      "listOfRAPDU": [ "9000" ]
+    }
+  ]
+}
