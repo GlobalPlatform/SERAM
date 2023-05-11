@@ -1,0 +1,32 @@
+@startuml
+ 
+hide footbox
+skinparam monochrome true
+skinparam dpi 150
+skinparam SequenceMessageAlign center
+skinparam sequenceArrowColor Black
+skinparam lifelinestrategy solid
+skinparam defaultFontSize 11
+
+participant "Local Agent" as LA
+participant "Remote Agent" as RA
+
+==Command Exchange Step - polling ==
+...
+group HTTP POST
+ LA -[#0000FF]> RA : sessionID, Report = { localAgentStatus, ramResponses }
+end
+
+... **max //30// seconds** ...
+
+group HTTP 200 Ok
+ LA <[#0000FF]- RA : Order = { **delay=//d//**, chosenSecureElement, ramCommands }
+end
+
+... **at least //d// seconds.** ...
+
+group HTTP POST with sessionId and Report Message
+ LA -[#0000FF]> RA : sessionID, Report = { localAgentStatus, ramResponses }
+end
+...
+@enduml

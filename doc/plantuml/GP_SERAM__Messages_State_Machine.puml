@@ -1,0 +1,25 @@
+@startuml
+skinparam monochrome true
+
+
+state Handshake {
+    [*] --> triggered
+    triggered -> do_handshake : Handshake\nCommand
+    do_handshake -> CommandExchange : Handshake\nResponse
+}
+
+state CommandExchange {
+    [*] --> wait_for_start
+    wait_for_start --> wait_for_command: Start\nCommand
+    wait_for_command --> do_seram: SE RAM\nCommand
+    do_seram --> wait_for_command: SE RAM\nResponse
+    wait_for_command --> wait_for_command: Notification\nCommand
+'    wait_for_command --> do_redirect: Redirect\nCommand
+'    do_redirect --> wait_for_command: End of\nRedirect
+}
+
+do_handshake -> do_finalize : Handshake\nResponse
+wait_for_command -> do_finalize: Stop\nCommand
+do_finalize --> [*]
+
+@enduml
