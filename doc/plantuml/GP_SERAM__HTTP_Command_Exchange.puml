@@ -1,0 +1,33 @@
+@startuml
+ 
+hide footbox
+skinparam monochrome true
+skinparam dpi 150
+skinparam SequenceMessageAlign center
+skinparam sequenceArrowColor Black
+skinparam lifelinestrategy solid
+skinparam defaultFontSize 11
+
+participant "Local Agent" as LA
+participant "Remote Agent" as RA
+
+==Command Exchange Step - example ==
+
+group HTTP POST
+ LA -[#0000FF]> RA : sessionID, Report = { localAgentStatus, ramResponses: [  ] }
+end
+
+group HTTP 200 Ok
+ LA <[#0000FF]- RA : Order = { delay, chosenSecureElement, ramCommands: [ startCommand, seRamCommand ] }
+end
+
+group HTTP POST with sessionId and Report Message
+ LA -[#0000FF]> RA : sessionID, Report = { localAgentStatus, ramResponses: [ seRamResponse ] }
+end
+
+group HTTP 200 Ok with Order Message
+ LA <[#0000FF]- RA : Order = { delay, chosenSecureElement, ramCommands: [ notificationCommand, stopCommand ] }
+end
+==End of Management Session==
+
+@enduml
