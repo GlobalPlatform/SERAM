@@ -510,7 +510,7 @@ components:
         {
           "localAgentStatus": {
             "localAgentStatusEnum": "POLLING",
-            "executeRamCommands": 0
+            "executedSeRamCommands": 0
           }
         }
     apdusRemoteManagement:
