@@ -206,19 +206,15 @@ components:
         - 'chosenVersion'
       properties:
         chosenTransportProtocol:
-          allOf:
-            - description: >-
+          description: >-
                The Transport Protocol selected by the Remote Agent.
-            - $ref: '#/components/schemas/transportProtocol'
+          $ref: '#/components/schemas/transportProtocol'
         chosenDataFormat:
-          allOf:
-            - description: The Data Protocol selected by the Remote Agent.
-            - $ref: '#/components/schemas/dataFormat'
+         description: The Data Protocol selected by the Remote Agent.
+         $ref: '#/components/schemas/dataFormat'
         chosenVersion:
-          allOf:
-            - description: >-
-                The Version of GP SERAM selected by the Remote Agent
-            - $ref: '#/components/schemas/version'
+          description: The Version of GP SERAM selected by the Remote Agent
+          $ref: '#/components/schemas/version'
 
     remoteManagementOrder:
       description: >-
@@ -234,17 +230,16 @@ components:
           type: integer
           default: 100
         chosenSecureElement:
-          allOf:
-            - description: >-
+          description: >-
                 Set the Secure Element the Local Agent SHALL used to send
                 C-APDU
-            - $ref: '#/components/schemas/secureElement'
+          $ref: '#/components/schemas/secureElement'
         ramCommands:
           description: >-
             List of Commands to be executed by the Local Agent. The list SHALL
             contain at least one Command Message. If the list contains more
             than one Command Message, the Local Agent SHALL handles them one
-            by one. 
+            by one.
           type: array
           items:
             $ref: '#/components/schemas/ramCommand'
@@ -262,9 +257,7 @@ components:
         - localAgentStatus
       properties:
         localAgentStatus:
-          allOf:
-            - description: Status of the Local Agent
-            - $ref: '#/components/schemas/localAgentStatus'
+          $ref: '#/components/schemas/localAgentStatus'
         ramResponses:
           description: The list of RAM responses
           type: array
@@ -280,10 +273,10 @@ components:
       discriminator:
         propertyName: ramCommandType
         mapping:
-            ramStartCommand: '#/components/schemas/ramStartCommand'
-            seRamCommand: '#/components/schemas/seRamCommand'
-            notificationCommand : '#/components/schemas/notificationCommand'
-            ramStopCommand : '#/components/schemas/ramStopCommand'
+          ramStartCommand: '#/components/schemas/ramStartCommand'
+          seRamCommand: '#/components/schemas/seRamCommand'
+          notificationCommand : '#/components/schemas/notificationCommand'
+          ramStopCommand : '#/components/schemas/ramStopCommand'
       properties:
         ramCommandType:
           description: >-
@@ -300,16 +293,16 @@ components:
 
     seRamCommand:
       allOf:
-      - description: >-
-          The SE RAM Command is used to send APDU to the Secure Element.<br>
-          The Local Agent SHALL send each APDU command of the listOfCAPDU to
-          the Secure Element using the SE Access API. The Local Agent SHALL
-          add each APDU response to the associated SE RAM Response. If an APDU
-          Response is not available, the Local Agent SHALL use an empty
-          string as APDU Response.
-      - $ref: '#/components/schemas/ramCommand'
-      - required:
-        - 'listOfCAPDU'
+        - description: >-
+            The SE RAM Command is used to send APDU to the Secure Element.<br>
+            The Local Agent SHALL send each APDU command of the listOfCAPDU to
+            the Secure Element using the SE Access API. The Local Agent SHALL
+            add each APDU response to the associated SE RAM Response. If an APDU
+            Response is not available, the Local Agent SHALL use an empty
+            string as APDU Response.
+        - $ref: '#/components/schemas/ramCommand'
+        - required:
+            - 'listOfCAPDU'
       properties:
         listOfCAPDU:
           description: >-
@@ -323,13 +316,13 @@ components:
 
     notificationCommand:
       allOf:
-      - description: >-
-          The Notification Command is used to send processing a notification
-          to the Device Application. The meaning of the notification and how
-          it is handled by the Device Application is implementation dependent.
-      - $ref: '#/components/schemas/ramCommand'
-      - required:
-          - 'deviceAppNotification'
+        - description: >-
+            The Notification Command is used to send processing a notification
+            to the Device Application. The meaning of the notification and how
+            it is handled by the Device Application is implementation dependent.
+        - $ref: '#/components/schemas/ramCommand'
+        - required:
+            - 'deviceAppNotification'
       properties:
         deviceAppNotification:
           description: >-
@@ -365,26 +358,26 @@ components:
 
     seRamResponse:
       allOf:
-      - description: >-
-          The SE RAM Response contains the APDU responses of the Secure
-          Element to the corresponding SE RAM Command.<br>
-          For each APDU send to the Secure Element, the Local Agent shall add
-          the associated APDU response to the listOfRAPDU property. If an APDU
-          response is not available (e.g. for a SELECT or on error), it shall
-          be filled with an empty string.
-      - $ref: '#/components/schemas/ramResponse'
-      - required:
-          - 'listOfRAPDU'
-        properties:
-          listOfRAPDU:
-            description: >-
-              An ordered list of APDU response of the Secure Element. Each
-              APDU are encoded as hexadecimal string.
-            type: array
-            items:
-              $ref: '#/components/schemas/apdu'
-            example:
-              - '9000'
+        - description: >-
+            The SE RAM Response contains the APDU responses of the Secure
+            Element to the corresponding SE RAM Command.<br>
+            For each APDU send to the Secure Element, the Local Agent shall add
+            the associated APDU response to the listOfRAPDU property. If an APDU
+            response is not available (e.g. for a SELECT or on error), it shall
+            be filled with an empty string.
+        - $ref: '#/components/schemas/ramResponse'
+        - required:
+            - 'listOfRAPDU'
+          properties:
+            listOfRAPDU:
+              description: >-
+                An ordered list of APDU response of the Secure Element. Each
+                APDU are encoded as hexadecimal string.
+              type: array
+              items:
+                $ref: '#/components/schemas/apdu'
+              example:
+                - '9000'
 
     apdu:
       description: hexadecimal encoded APDU
@@ -402,21 +395,9 @@ components:
         The Local Agent SHALL sent a status in each request to the HTTP server.
       required:
         - localAgentStatusEnum
-        - executedRamCommands
       properties:
         localAgentStatusEnum:
-          description: >-
-            Local Agent SHALL send a PROCESSED status whenever at least one
-            RAM command has been executed. On any error processing one of
-            UNAVAILABLE_SE, UNKNOWN_FAILURE, or UNGRANTED_ACCESS SHALL be used.
-            And the POLLING status SHALL be used for the first HTTP request or
-            if the Remote Agent hasn't sent any Command.
-          enum:
-            - PROCESSED
-            - POLLING
-            - UNAVAILABLE_SE
-            - UNKNOWN_FAILURE
-            - UNGRANTED_ACCESS
+          $ref: '#/components/schemas/localAgentStatusEnum'
         executedSeRamCommands:
           description: >-
             Number of SE RAM command executed. Value SHALL be set to zero
@@ -444,14 +425,7 @@ components:
         - seId
       properties:
         seType:
-          description: Type of Secure Element.
-          type: string
-          enum:
-            - eSE
-            - iSE
-            - uicc
-            - euicc
-            - ieuicc
+          $ref: '#/components/schemas/seType'
         seId:
           description: Identifier of the Secure Element.
           type: string
@@ -460,6 +434,33 @@ components:
           description: A comma separated list of features supported by the SE.
           type: string
           example: 'SAM'
+
+    seType:
+      description: Type of Secure Element.
+      type: string
+      enum:
+        - eSE
+        - iSE
+        - uicc
+        - euicc
+        - ieuicc
+        - undefined
+
+    localAgentStatusEnum:
+      type:
+        string
+      description: >-
+        Local Agent SHALL send a PROCESSED status whenever at least one
+        RAM command has been executed. On any error processing one of
+        UNAVAILABLE_SE, UNKNOWN_FAILURE, or UNGRANTED_ACCESS SHALL be used.
+        And the POLLING status SHALL be used for the first HTTP request or
+        if the Remote Agent hasn't sent any Command.
+      enum:
+        - PROCESSED
+        - POLLING
+        - UNAVAILABLE_SE
+        - UNKNOWN_FAILURE
+        - UNGRANTED_ACCESS
 
     sessionId:
       description: >-
@@ -483,7 +484,7 @@ components:
     handshakeRequest:
       summary: Handshake Command Message
       value:
-          {
+        {
           "secureElements": [
             {
               "seType": "eSE",
@@ -494,28 +495,28 @@ components:
           "supportedTransportProtocols": [ "HTTPS" ],
           "supportedDataFormats": [ "application/json" ],
           "supportedVersion": [ "2.0.0" ]
-          }
+        }
     handshakeResponse:
       summary: Handshake Response Message
       value:
-          {
+        {
           "chosenTransportProtocol": "HTTPS",
           "chosenDataFormat": "application/json",
           "chosenVersion": "2.0.0"
-          }
+        }
     remoteManagementPolling:
       summary: Report Message to poll the Remote Agent
       value:
-          {
+        {
           "localAgentStatus": {
             "localAgentStatusEnum": "POLLING",
             "executeRamCommands": 0
           }
-      }
+        }
     apdusRemoteManagement:
       summary: Report Message with SE RAM responses
       value:
-          {
+        {
           "localAgentStatus": {
             "localAgentStatusEnum": "PROCESSED",
             "executedSeRamCommands": 2
@@ -530,13 +531,13 @@ components:
               "listOfRAPDU": [ "9000" ]
             }
           ]
-      }
+        }
     withoutCommandOrder:
       summary: Order Message without any Command (polling)
       value:
-          {
+        {
           "delay": 500
-      }
+        }
     startCommandOrder:
       summary: Order Message with a Start Command
       value:
@@ -550,7 +551,7 @@ components:
     seRamCommandOrder:
       summary: Order Message with a SE RAM Command
       value:
-          {
+        {
           "delay": 100,
           "chosenSecureElement": {
             "seType": "eSE",
@@ -563,32 +564,32 @@ components:
               "listOfCAPDU": [ "00A40400OA0001020304050607080900A" ]
             }
           ]
-      }
+        }
     notificationCommandOrder:
       summary: Order Message with a Notification Command
       value:
-          {
+        {
           "ramCommands": [
             {
               "ramCommandType": "notificationCommand",
               "deviceAppNotification": "step1/action2/OK"
             }
           ]
-      }
+        }
     stopCommandOrder:
       summary: Order Message with a Stop Command
       value:
-          {
+        {
           "ramCommands": [
             {
               "ramCommandType": "stopCommand"
             }
           ]
-      }
+        }
     allCommandsOrder:
       summary: Order Message with a Start, SE RAM, Notification and Stop Command
       value:
-          {
+        {
           "delay": 0,
           "chosenSecureElement": {
             "seType": "eSE",
@@ -611,4 +612,4 @@ components:
               "ramCommandType": "stopCommand"
             }
           ]
-      }
+        }
