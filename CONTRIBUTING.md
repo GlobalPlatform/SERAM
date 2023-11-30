@@ -75,9 +75,9 @@ We require git commits to be signed-off using `git commit -S`, so please check t
 ### GitHub Account
 
 You will need a GitHub account where you will create a [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) of 
-the TPS-API-Reference-Implementations repository. You make your contributions from this fork.
+the SERAM repository. You make your contributions from this fork.
 
-This account mught be personal or it might belong to a company or other organizational contributor. If you are
+This account might be personal or it might belong to a company or other organizational contributor. If you are
 employed, please ensure that your employer allows you to make contributions - you are responsible for this under
 the Developer Certificate of Origin.
 
@@ -95,5 +95,5 @@ We ask contributors to use GPG to sign their commits. We also like to match GPG 
 by the key owners.
 
 GitHub provides a [guide to adding a GPG key to your account](https://docs.github.com/en/authentication/managing-commit-signature-verification/adding-a-gpg-key-to-your-github-account).
-You should ensure that they key you use is associated with the e-mail address you used to set-up your GitHub account.
+You should ensure that they key you use is associated with the e-mail address you used to set up your GitHub account.
 If you follow the GitHub guide, this will be the case.

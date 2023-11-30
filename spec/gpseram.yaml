@@ -281,7 +281,7 @@ components:
         ramCommandType:
           description: >-
             The type of Command with authorized values listed in the
-            discrimitator mapping
+            discriminator mapping
           type: string
 
     ramStartCommand:
