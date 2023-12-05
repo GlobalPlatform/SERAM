@@ -50,7 +50,7 @@ The session during which is performed some management tasks that are associated 
 
 ![Management Session](images/GP_SERAM__Management_Session.png)
 
-The [Management Session](GPSERAM__Terminology_And_Definitions.md#ManagementSession) is started by the [Device Application](GPSERAM__Terminology_And_Definitions.md#DeviceApplication) and is then controlled until its end by the [Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent).
+In term of GP SERAM protocol, the [Management Session](GPSERAM__Terminology_And_Definitions.md#ManagementSession) is started by the triggering of the [Local Agent](GPSERAM__Terminology_And_Definitions.md#LocalAgent) by the [Device Application](GPSERAM__Terminology_And_Definitions.md#DeviceApplication) and is then controlled until its end by the [Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent).
 
 ### Protocol Steps
 
@@ -69,13 +69,13 @@ Protocol Steps details
 
 ### Initialization Step
 
-During this phase, a session identifier, named [sessionId](GPSERAM__Terminology_And_Definitions.md#sessionId), SHALL be generated and shared between the [Device Application](GPSERAM__Terminology_And_Definitions.md#DeviceApplication) and the [Management Platform](GPSERAM__Terminology_And_Definitions.md#ManagementPlatform). How this [sessionId](GPSERAM__Terminology_And_Definitions.md#sessionId) is generated and shared is out of the scope of this specification.
+During this phase, a session identifier, named [sessionId](GPSERAM__Terminology_And_Definitions.md#sessionId), SHALL be generated and shared between the [Device Application](GPSERAM__Terminology_And_Definitions.md#DeviceApplication) and the [Management Platform](GPSERAM__Terminology_And_Definitions.md#ManagementPlatform). How, when, and by whom this [sessionId](GPSERAM__Terminology_And_Definitions.md#sessionId) is generated is out of the scope of this specification and it just needs to be understandable by the [Management Platform](GPSERAM__Terminology_And_Definitions.md#ManagementPlatform).
 
 The [sessionId](GPSERAM__Terminology_And_Definitions.md#sessionId) SHALL be a unique identifier for the [Device Application](GPSERAM__Terminology_And_Definitions.md#DeviceApplication) and the [Management Platform](GPSERAM__Terminology_And_Definitions.md#ManagementPlatform). How this uniqueness is handled is out of the scope of this specification.
 
-Moreover, the [RA Endpoint](GPSERAM__Terminology_And_Definitions.md#RAEndpoint) to communicate with the [Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent) MUST also has been shared between entities. How this [RA Endpoint](GPSERAM__Terminology_And_Definitions.md#RAEndpoint) is defined and shared is out of the scope of this specification.
+Moreover, the [RA Endpoint](GPSERAM__Terminology_And_Definitions.md#RAEndpoint) to communicate with the [Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent) MUST also be shared between entities. How this [RA Endpoint](GPSERAM__Terminology_And_Definitions.md#RAEndpoint) is defined and shared is out of the scope of this specification.
 
-GP SERAM session starts after the [Local Agent](GPSERAM__Terminology_And_Definitions.md#LocalAgent) is triggered with the [sessionId](GPSERAM__Terminology_And_Definitions.md#sessionId) and the [RA Endpoint](GPSERAM__Terminology_And_Definitions.md#RAEndpoint) of the [Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent). The [Local Agent](GPSERAM__Terminology_And_Definitions.md#LocalAgent) starts with the [Handshake](GPSERAM__Terminology_And_Definitions.md#Handshake) [Step](GPSERAM__Terminology_And_Definitions.md#Step).
+The GP SERAM [Management Session](GPSERAM__Terminology_And_Definitions.md#ManagementSession) starts after the [Local Agent](GPSERAM__Terminology_And_Definitions.md#LocalAgent) is triggered with the [sessionId](GPSERAM__Terminology_And_Definitions.md#sessionId) and the [RA Endpoint](GPSERAM__Terminology_And_Definitions.md#RAEndpoint) of the [Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent). Then, the [Local Agent](GPSERAM__Terminology_And_Definitions.md#LocalAgent) starts with the [Handshake](GPSERAM__Terminology_And_Definitions.md#Handshake) [Step](GPSERAM__Terminology_And_Definitions.md#Step).
 
 ### Handshake Step
 

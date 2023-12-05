@@ -28,10 +28,10 @@ HTTP REST Endpoints
 
 Two endpoints are defined: one to make the [Handshake](GPSERAM__Terminology_And_Definitions.md#Handshake) [Step](GPSERAM__Terminology_And_Definitions.md#Step) and the second to makes the [Command Exchange](GPSERAM__Terminology_And_Definitions.md#CommandExchange) [Step](GPSERAM__Terminology_And_Definitions.md#Step).
 
-| **Endpoint**      | **Description**        |
-|-------------------|------------------------|
-| /handshake        | Handshake Step         |
-| /remoteManagement | Command Exchange Step |
+| **Endpoint**      | **GP SERAM Step**     | **Description**                                       |
+|-------------------|------------------------|-------------------------------------------------------|
+| /handshake        | Handshake Step         | Negociate data format and the transport protocol      |
+| /remoteManagement | Command Exchange Step  | Method used to respond to a remote management command |
 
 Handshake Step
 --------------
