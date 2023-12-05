@@ -43,45 +43,6 @@ all code under this project.
 
 ### Expectations of Code
 
-#### Programming Language
-
-The majority of the code in the TPS API Reference Implementations is written in Rust, and we are
-generally trying to stay reasonably up-to-date with resepect to Rust Compiler versions and crate dependencies.
-
-There are certain API points where the TPS reference implementations, while they are written in Rust, provide
-C callable APIs. Contributions in C or C++ which make use of these APIs are certainly of interest, and there is
-rudimentary CMake support in the project to assist in building these.
-
-Contributions in other programming languages are of interest mainly to the extent that they expose TPS Services
-through APIs for those other languages, e.g. something like a Python binding to the TPS Client API might be of
-interest.
-
-#### Code Quality
-
-Code should be of generally good quality. This means that:
-
-- It should compile without warnings.
-- Rust code should pass most Clippy linters.
-- Exported functions should have Rustdoc documentation.
-- There should usually be tests.
-- There should usually be example code.
-- Code should be generally well-structured, use comments appropriately (especially where complex constructions
-  are used)
-- Function names should be descriptive and ideally follow a "verb", "object" naming pattern.
-
-Code which is intended to run in a `no_std` environment should be tested to ensure that it does so. In practice, code
-may well need to make use of Rust features.
-
-It is accepted that early contributions of larger features may be incomplete or lacking in some of the above areas, 
-and the maintainer has some discretion to consider whether to accept contributions where this is the case. The guiding
-principle is that any contribution must provide some useful feature that is end-to-end usable and of good quality of
-iteslf.
-
-#### Embedded Targets
-
-Contributions of support for different embedded targets are especially welcome. While it is not aimed only at
-embedded platforms, embedded targets are an important use-case for the TPS APIs and services.
-
 #### Copyright, Licensing and Dependencies
 
 Where you modify an existing file, you must add your copyright to that file. Where you create a new file, the
@@ -114,9 +75,9 @@ We require git commits to be signed-off using `git commit -S`, so please check t
 ### GitHub Account
 
 You will need a GitHub account where you will create a [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) of 
-the TPS-API-Reference-Implementations repository. You make your contributions from this fork.
+the SERAM repository. You make your contributions from this fork.
 
-This account mught be personal or it might belong to a company or other organizational contributor. If you are
+This account might be personal or it might belong to a company or other organizational contributor. If you are
 employed, please ensure that your employer allows you to make contributions - you are responsible for this under
 the Developer Certificate of Origin.
 
@@ -134,5 +95,5 @@ We ask contributors to use GPG to sign their commits. We also like to match GPG 
 by the key owners.
 
 GitHub provides a [guide to adding a GPG key to your account](https://docs.github.com/en/authentication/managing-commit-signature-verification/adding-a-gpg-key-to-your-github-account).
-You should ensure that they key you use is associated with the e-mail address you used to set-up your GitHub account.
+You should ensure that they key you use is associated with the e-mail address you used to set up your GitHub account.
 If you follow the GitHub guide, this will be the case.

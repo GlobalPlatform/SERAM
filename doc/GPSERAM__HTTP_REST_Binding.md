@@ -21,7 +21,7 @@ Management Session and HTTP messages
 
 HTTP messages are attached with a [Managment Session](GPSERAM__Terminology_And_Definitions.md#ManagementSession) based on the [sessionId](GPSERAM__Terminology_And_Definitions.md#sessionId). The [sessionId](GPSERAM__Terminology_And_Definitions.md#sessionId) is explicitly inserted in each HTTP request and implicitly determined for HTTP response based on the client-server paradigm of the HTTP protocol.
 
-Implementors MAY uses another HTTP mechanism to reinforce the HTTP session (e.g. HTTP cookies). A [Local Agent](GPSERAM__Terminology_And_Definitions.md#LocalAgent) SHOULD support HTTP cookies as defined in [RFC6265](https://www.rfc-editor.org/rfc/rfc6265).
+Implementors MAY use another HTTP mechanism to reinforce the HTTP session (e.g. HTTP cookies). A [Local Agent](GPSERAM__Terminology_And_Definitions.md#LocalAgent) SHOULD support HTTP cookies as defined in [RFC6265](https://www.rfc-editor.org/rfc/rfc6265).
 
 HTTP REST Endpoints
 -------------------
@@ -58,12 +58,12 @@ To allow the [Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent)
 
 During HTTP polling, some void HTTP messages MAY be used. A void HTTP message is any *Order* or *Report* [Message](GPSERAM__Terminology_And_Definitions.md#Message) which doesn’t carry any [Command](GPSERAM__Terminology_And_Definitions.md#Command) or [Response](GPSERAM__Terminology_And_Definitions.md#Response), and which role is to maintain the communication channel between the [Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent) and the [Local Agent](GPSERAM__Terminology_And_Definitions.md#LocalAgent). The first HTTP request to the [Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent) is always a void HTTP message.
 
-The [Local Agent](GPSERAM__Terminology_And_Definitions.md#LocalAgent) SHALL uses HTTP polling whenever awaiting a *Order* [Message](GPSERAM__Terminology_And_Definitions.md#Message). It SHALL NOT use HTTP polling whenever it’s processing the previous *Order* [Message](GPSERAM__Terminology_And_Definitions.md#Message) unless it doesn’t require any [Response](GPSERAM__Terminology_And_Definitions.md#Response).
+The [Local Agent](GPSERAM__Terminology_And_Definitions.md#LocalAgent) SHALL use HTTP polling whenever awaiting a *Order* [Message](GPSERAM__Terminology_And_Definitions.md#Message). It SHALL NOT use HTTP polling whenever it’s processing the previous *Order* [Message](GPSERAM__Terminology_And_Definitions.md#Message) unless it doesn’t require any [Response](GPSERAM__Terminology_And_Definitions.md#Response).
 
 The [Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent) may fine-tune the HTTP polling by controlling the delay between an HTTP response and the next HTTP request. If the [Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent) doesn’t specify any delay, the [Local Agent](GPSERAM__Terminology_And_Definitions.md#LocalAgent) SHALL make a pause of 1 second before sending the next HTTP request. The [Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent) MAY used a value of 0 to deactivate the delay.
 
 As describes in [RFC6202](https://www.rfc-editor.org/rfc/rfc6202.html), the [Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent) MAY use HTTP long polling mechanism and wait a certain period of time before sending the void HTTP response.
-[Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent) SHOULD NOT used period of time beyond 30 seconds and [Local Agent](GPSERAM__Terminology_And_Definitions.md#LocalAgent) SHOULD at least support latency of 30 seconds between HTTP request and HTTP response.
+[Remote Agent](GPSERAM__Terminology_And_Definitions.md#RemoteAgent) SHOULD NOT use period of time beyond 30 seconds and [Local Agent](GPSERAM__Terminology_And_Definitions.md#LocalAgent) SHOULD at least support latency of 30 seconds between HTTP request and HTTP response.
 
 ![HTTP polling](images/GP_SERAM__HTTP_Polling.png)
 
