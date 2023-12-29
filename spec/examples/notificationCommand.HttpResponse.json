@@ -1,8 +1,0 @@
-{
-  "ramCommands": [
-    {
-      "ramCommandType": "notificationCommand",
-      "deviceAppNotification": "step1/action2/OK"
-    }
-  ]
-}

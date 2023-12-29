@@ -18,7 +18,7 @@ To understand the protocol, please, refer to:
 * [GP SERAM Protocol Overview](doc/GPSERAM__Overview.md)
 
 The documentation also includes [Terminology and Definitions](doc/GPSERAM__Terminology_And_Definitions.md) and
-[References](doc/GPSERAM__References.md).
+[References](doc/GPSERAM__References.md). An example of an  [Order Provisioning Interface](doc/GPSERAM__Order_Provisioning_Interface.md) is also given.
 
 Protocol binding
 ----------------

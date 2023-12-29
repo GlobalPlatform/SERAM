@@ -1,0 +1,24 @@
+@startuml
+ 
+hide footbox
+skinparam monochrome true
+skinparam dpi 150
+skinparam SequenceMessageAlign center
+skinparam sequenceArrowColor Black
+skinparam lifelinestrategy solid
+skinparam defaultFontSize 11
+
+participant "Local Agent" as LA
+participant "Remote Agent" as RA
+
+== Handshake Step ==
+
+group HTTP POST
+ LA -> RA : sessionID, handshakeCommand
+end
+
+group HTTP 200 Ok
+ LA <- RA : handshakeResponse
+end
+
+@enduml
